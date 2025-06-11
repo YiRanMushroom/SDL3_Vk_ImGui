@@ -61,36 +61,40 @@ void RenderCompileWindow() {
 }
 
 void HandleCompile() {
-    std::string sourceFilePath = g_SourceFilePath.GetProxy().Get();
-    std::string targetOutputPath = g_TargetOutputPath.GetProxy().Get();
-    if (sourceFilePath.empty()) {
-        Windows::ShowErrorMessage("Please select a source file.");
-        return;
-    }
+    std::thread ([]() {
+        std::string sourceFilePath = g_SourceFilePath.GetProxy().Get();
+        std::string targetOutputPath = g_TargetOutputPath.GetProxy().Get();
+        if (sourceFilePath.empty()) {
+            Windows::ShowErrorMessage("Please select a source file.");
+            return;
+        }
 
-    std::filesystem::path picoBlazePath = g_CurrentPath / "PicoBlaze";
+        std::filesystem::path picoBlazePath = g_CurrentPath / "PicoBlaze";
 
-    std::string command = "EasyASM -l " + picoBlazePath.string() + " -i " + sourceFilePath + ' ';
+        std::string command = "EasyASM -l " + picoBlazePath.string() + " -i " + sourceFilePath + ' ';
 
-    if (!targetOutputPath.empty()) {
-        command += "-o " + targetOutputPath + " ";
-    }
+        if (!targetOutputPath.empty()) {
+            command += "-o " + targetOutputPath + " ";
+        }
 
-    std::cout << "Running command: " << command << std::endl;
+        std::cout << "Running command: " << command << std::endl;
 
-    auto output = Windows::RunProcessWithOutput(command);
-    if (!output) {
-        return;
-    }
-    auto [stdout, stderr] = std::move(output.value());
-    if (!stdout.empty()) {
-        g_compilerOutput.GetProxy().Set(std::move(stdout));
-        std::cout << "Compiler Output: " << g_compilerOutput.GetProxy().Get() << std::endl;
-    }
-    if (!stderr.empty()) {
-        g_compilerErrorOutput.GetProxy().Set(std::move(stderr));
-        std::cerr << "Compiler Error Output: " << g_compilerErrorOutput.GetProxy().Get() << std::endl;
-    }
+        auto output = Windows::RunProcessWithOutput(command);
+        if (!output) {
+            return;
+        }
+        auto [stdout, stderr] = std::move(output.value());
+        if (!stdout.empty()) {
+            g_compilerOutput.GetProxy().Set(std::move(stdout));
+        } else {
+            g_compilerOutput.GetProxy().Set("");
+        }
+        if (!stderr.empty()) {
+            g_compilerErrorOutput.GetProxy().Set(std::move(stderr));
+        } else {
+            g_compilerErrorOutput.GetProxy().Set("");
+        }
+    }).detach();
 }
 
 void RenderCompilerOutputWindow() {

@@ -97,8 +97,15 @@ namespace Windows {
         CloseHandle(errRead);
 
         WaitForSingleObject(pi.hProcess, INFINITE);
+        DWORD exitCode = 0;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+
+        if (exitCode != 0) {
+            ShowErrorMessage(("Process exited abnormally. Exit code: " + std::to_string(exitCode) + ". Please report this issue to the compilier vendor with the source it compiled.").c_str());
+        }
 
         return ProcessOutput{std::move(outStr), std::move(errStr)};
     }
