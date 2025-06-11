@@ -14,7 +14,7 @@ bool g_CompileWindowOpen = true;
 bool g_CompilerOutputWindowOpen = true;
 bool g_CompilerErrorOutputWindowOpen = true;
 
-std::filesystem::path currentPath = std::filesystem::current_path();
+std::filesystem::path g_CurrentPath = std::filesystem::current_path();
 
 void HandleCompile();
 
@@ -67,7 +67,7 @@ void HandleCompile() {
         return;
     }
 
-    std::filesystem::path picoBlazePath = currentPath / "PicoBlaze";
+    std::filesystem::path picoBlazePath = g_CurrentPath / "PicoBlaze";
 
     std::string command = "EasyASM -l " + picoBlazePath.string() + " -i " + sourceFilePath + ' ';
 
@@ -117,12 +117,11 @@ void RenderCompilerErrorOutputWindow() {
 }
 
 export int main(int, char **) {
-    Program program{ProgramSpec{
-        .WindowTitle = "EasyASM-PicoBlaze Compiler"
-    }};
-    // Our state
-
-    auto &io = ImGui::GetIO(); // (void)io; // You can also access ImGuiIO directly if you need to
+    Program program{
+        ProgramSpec{
+            .WindowTitle = "EasyASM-PicoBlaze Compiler"
+        }
+    };
 
     std::vector<std::pair<std::string, bool *>> windowNames{
         {"Compile", &g_CompileWindowOpen},
