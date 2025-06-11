@@ -4,10 +4,14 @@ import Framework;
 
 import <Windows.h>;
 import <shlobj.h>;
+import <direct.h>;
 import std;
 
 namespace Windows {
     export std::optional<std::string> OpenFileDialog(std::string_view filter = "All Files\0*.*\0") {
+        char originalDir[MAX_PATH];
+        _getcwd(originalDir, MAX_PATH); // Save current directory
+
         char filename[MAX_PATH] = "";
 
         OPENFILENAMEA ofn;
@@ -19,10 +23,13 @@ namespace Windows {
         ofn.nMaxFile = MAX_PATH;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
+        std::optional<std::string> result;
         if (GetOpenFileNameA(&ofn)) {
-            return std::string(filename);
+            result = std::string(filename);
         }
-        return {};
+
+        _chdir(originalDir); // Restore original directory
+        return result;
     }
 
     export std::optional<std::string> OpenDirectoryDialog() {
