@@ -1,0 +1,8 @@
+[submodule "vendor/SDL3"]
+	path = vendor/SDL3
+	url = https://github.com/libsdl-org/SDL
+	branch = release-3.2.x
+[submodule "vendor/imgui"]
+	path = vendor/imgui
+	url = https://github.com/YiRanMushroom/imgui
+	branch = docking

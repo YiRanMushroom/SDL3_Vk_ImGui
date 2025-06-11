@@ -16,7 +16,8 @@ file(GLOB_RECURSE MODULE_FILES "src/*.ixx" "src/*.cppm")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.cxx")
 file(GLOB_RECURSE HEADER_FILES "src/*.h" "src/*.hpp")
 
-add_executable(${PROJECT_NAME} ${MODULE_FILES} ${SOURCE_FILES} ${HEADER_FILES})
+add_executable(${PROJECT_NAME} ${MODULE_FILES} ${SOURCE_FILES} ${HEADER_FILES}
+        src/CoreHeader.hpp)
 
 target_sources(
         ${PROJECT_NAME}
@@ -26,3 +27,19 @@ target_sources(
         FILES
         ${MODULE_FILES}
         ${SOURCE_FILES})
+
+set(SDL_VULKAN ON)
+set(SDL_STATIC ON)
+set(SDL_SHARED OFF)
+add_subdirectory(vendor/SDL3)
+target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
+
+set(IMGUI_DEFINE_MATH_OPERATORS ON)
+set(IMGUI_BACKEND_RENDERER vulkan)
+set(IMGUI_BACKEND_PLATFORM sdl3)
+add_subdirectory(vendor/imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
+target_link_libraries(imgui PUBLIC SDL3::SDL3)
+
+find_package(Vulkan REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
