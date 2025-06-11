@@ -71,10 +71,10 @@ void HandleCompile() {
 
         std::filesystem::path picoBlazePath = g_CurrentPath / "PicoBlaze";
 
-        std::string command = std::string("EasyASM -l ") + "PicoBlaze" + " -i " + sourceFilePath + ' ';
+        std::string command = std::string("EasyASM -l ") + "PicoBlaze" + " -i \"" + sourceFilePath + "\" ";
 
         if (!targetOutputPath.empty()) {
-            command += "-o " + targetOutputPath + " ";
+            command += "-o \"" + targetOutputPath + "\" ";
         }
 
         std::cout << "Running command: " << command << std::endl;

@@ -111,8 +111,11 @@ Program::Program(ProgramSpec spec) {
     //IM_ASSERT(font != nullptr);
 
     ImFontConfig font_cfg;
-    font_cfg.SizePixels = 18.0f; // Set your desired font size
-    io.Fonts->AddFontDefault(&font_cfg);
+    font_cfg.SizePixels = 28.0f; // Set your desired font size, all languages
+    io.Fonts->AddFontFromFileTTF("OpenSans.ttf", font_cfg.SizePixels, &font_cfg, io.Fonts->GetGlyphRangesDefault());
+    font_cfg.MergeMode = true;
+    io.Fonts->AddFontFromFileTTF("NotoSansSC.ttf", font_cfg.SizePixels, &font_cfg, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->Build();
 }
 
 Program::~Program() {

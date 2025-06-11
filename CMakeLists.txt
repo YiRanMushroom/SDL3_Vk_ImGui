@@ -39,6 +39,10 @@ set(IMGUI_BACKEND_PLATFORM sdl3 CACHE STRING "ImGui backend platform" FORCE)
 add_subdirectory(vendor/imgui)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
 
+# utf-8 for MSVC
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+endif ()
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
