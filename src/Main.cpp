@@ -1,6 +1,8 @@
 export module Main;
 
 import Framework;
+import Application.ImGuiWindows;
+import std;
 
 // Main code
 export int main(int, char **) {
@@ -11,8 +13,16 @@ export int main(int, char **) {
 
     auto io = ImGui::GetIO(); // (void)io; // You can also access ImGuiIO directly if you need to
 
+    std::unordered_map<std::string, bool*> windowNames{
+        {std::string("show_demo_window"), &show_demo_window},
+        {std::string("show_another_window"), &show_another_window},
+    };
+
+
     program.ExecuteLoop(
         [&](SDL_Event event) {
+            RenderBackgroundSpace(windowNames);
+
             if (show_demo_window)
                 ImGui::ShowDemoWindow(&show_demo_window); {
                 static float f = 0.0f;
