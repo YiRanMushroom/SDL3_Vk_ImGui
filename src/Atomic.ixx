@@ -11,6 +11,9 @@ public:
     Atomic(const Atomic&) = delete;
     Atomic(Atomic&&) = delete;
 
+    Atomic(auto&&... args) : m_Value(std::forward<decltype(args)>(args)...) {
+    }
+
     struct Proxy {
         Atomic* m_Atomic;
         Proxy(Atomic& atomic) : m_Atomic(&atomic) {
@@ -21,7 +24,7 @@ public:
         }
 
         ~Proxy() {
-            m_Atomic.m_Mutex->unlock();
+            m_Atomic->m_Mutex.unlock();
         }
 
         void Set(const T& value) {

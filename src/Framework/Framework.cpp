@@ -2,20 +2,29 @@ module Framework;
 
 import "CoreHeader.hpp";
 import std.compat;
+import Application.WindowsInteractions;
 
 Program::Program(ProgramSpec spec) {
     // Setup SDL
     // [If using SDL_MAIN_USE_CALLBACKS: all code below until the main loop starts would likely be your SDL_AppInit() function]
     if (!SDL_Init(spec.SDLInitFlags)) {
-        printf("Error: SDL_Init(): %s\n", SDL_GetError());
+        // printf("Error: SDL_Init(): %s\n", SDL_GetError());
+        Windows::ShowErrorMessage(
+            (std::string("Failed to initialize SDL: ") + SDL_GetError()).c_str(),
+            "SDL Initialization Error"
+        );
         std::exit(-1);
     }
 
     // Create window with Vulkan graphics context
     SDL_WindowFlags window_flags = spec.SDLWindowFlags;
-    m_SDLWindow = SDL_CreateWindow("Dear ImGui SDL3+Vulkan example", 1280, 720, window_flags);
+    m_SDLWindow = SDL_CreateWindow(spec.WindowTitle, spec.WindowWidth, spec.WindowHeight, window_flags);
     if (m_SDLWindow == nullptr) {
-        printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+        // printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+        Windows::ShowErrorMessage(
+            (std::string("Failed to create SDL window: ") + SDL_GetError()).c_str(),
+            "SDL Window Creation Error"
+        );
         std::exit(-1);
     }
 
@@ -31,7 +40,11 @@ Program::Program(ProgramSpec spec) {
     VkSurfaceKHR surface;
     VkResult err;
     if (SDL_Vulkan_CreateSurface(m_SDLWindow, g_Instance, g_Allocator, &surface) == 0) {
-        printf("Failed to create Vulkan surface.\n");
+        // printf("Failed to create Vulkan surface.\n");
+        Windows::ShowErrorMessage(
+            (std::string("Failed to create Vulkan surface: ") + SDL_GetError()).c_str(),
+            "Vulkan Surface Creation Error"
+        );
         std::exit(1);
     }
 

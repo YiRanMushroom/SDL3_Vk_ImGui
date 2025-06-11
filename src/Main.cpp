@@ -2,58 +2,145 @@ export module Main;
 
 import Framework;
 import Application.ImGuiWindows;
+import Atomic;
 import std;
+import Application.WindowsInteractions;
 
-// Main code
+Atomic<std::string> g_SourceFilePath;
+Atomic<std::string> g_TargetOutputPath;
+Atomic<std::string> g_compilerOutput;
+Atomic<std::string> g_compilerErrorOutput;
+bool g_CompileWindowOpen = true;
+bool g_CompilerOutputWindowOpen = true;
+bool g_CompilerErrorOutputWindowOpen = true;
+
+std::filesystem::path currentPath = std::filesystem::current_path();
+
+void HandleCompile();
+
+void RenderCompileWindow() {
+    ImGui::Begin("Compile", &g_CompileWindowOpen); {
+        ImGui::Text("Source File: ");
+        ImGui::SameLine();
+        float availWidth = ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(availWidth - 50.0f); {
+            auto sourceProxy = g_SourceFilePath.GetProxy();
+            ImGui::InputText("##SourceFile", &sourceProxy.Get());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("...##SourceFile")) {
+            std::thread([&] {
+                if (auto result = Windows::OpenFileDialog("PicoBlaze Source Files\0*.psm\0All Files\0*.*\0")) {
+                    g_SourceFilePath.GetProxy().Set(std::move(result.value()));
+                }
+            }).detach();
+        }
+
+        ImGui::Text("Output Directory: ");
+        ImGui::SameLine();
+        availWidth = ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(availWidth - 50.0f); {
+            auto targetProxy = g_TargetOutputPath.GetProxy();
+            ImGui::InputText("##OutputDirectory", &targetProxy.Get());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("...##OutputDirectory")) {
+            std::thread([&] {
+                if (auto result = Windows::OpenDirectoryDialog()) {
+                    g_TargetOutputPath.GetProxy().Set(std::move(result.value()));
+                }
+            }).detach();
+        }
+
+        if (ImGui::Button("Compile")) {
+            HandleCompile();
+        }
+    }
+    ImGui::End();
+}
+
+void HandleCompile() {
+    std::string sourceFilePath = g_SourceFilePath.GetProxy().Get();
+    std::string targetOutputPath = g_TargetOutputPath.GetProxy().Get();
+    if (sourceFilePath.empty()) {
+        Windows::ShowErrorMessage("Please select a source file.");
+        return;
+    }
+
+    std::filesystem::path picoBlazePath = currentPath / "PicoBlaze";
+
+    std::string command = "EasyASM -l " + picoBlazePath.string() + " -i " + sourceFilePath + ' ';
+
+    if (!targetOutputPath.empty()) {
+        command += "-o " + targetOutputPath + " ";
+    }
+
+    std::cout << "Running command: " << command << std::endl;
+
+    auto output = Windows::RunProcessWithOutput(command);
+    if (!output) {
+        return;
+    }
+    auto [stdout, stderr] = std::move(output.value());
+    if (!stdout.empty()) {
+        g_compilerOutput.GetProxy().Set(std::move(stdout));
+        std::cout << "Compiler Output: " << g_compilerOutput.GetProxy().Get() << std::endl;
+    }
+    if (!stderr.empty()) {
+        g_compilerErrorOutput.GetProxy().Set(std::move(stderr));
+        std::cerr << "Compiler Error Output: " << g_compilerErrorOutput.GetProxy().Get() << std::endl;
+    }
+}
+
+void RenderCompilerOutputWindow() {
+    ImGui::Begin("Compiler Output", &g_CompilerOutputWindowOpen);
+
+    if (ImGui::Button("Clear##CompilerOutput")) {
+        g_compilerOutput.GetProxy().Set("");
+    }
+
+    ImGui::TextWrapped("%s", g_compilerOutput.GetProxy().Get().c_str());
+
+    ImGui::End();
+}
+
+void RenderCompilerErrorOutputWindow() {
+    ImGui::Begin("Compiler Error Output", &g_CompilerErrorOutputWindowOpen);
+
+    if (ImGui::Button("Clear##CompilerErrorOutput")) {
+        g_compilerErrorOutput.GetProxy().Set("");
+    }
+
+    ImGui::TextWrapped("%s", g_compilerErrorOutput.GetProxy().Get().c_str());
+
+    ImGui::End();
+}
+
 export int main(int, char **) {
-    Program program{ProgramSpec{}};
+    Program program{ProgramSpec{
+        .WindowTitle = "EasyASM-PicoBlaze Compiler"
+    }};
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
 
-    auto io = ImGui::GetIO(); // (void)io; // You can also access ImGuiIO directly if you need to
+    auto &io = ImGui::GetIO(); // (void)io; // You can also access ImGuiIO directly if you need to
 
-    std::unordered_map<std::string, bool*> windowNames{
-        {std::string("show_demo_window"), &show_demo_window},
-        {std::string("show_another_window"), &show_another_window},
+    std::vector<std::pair<std::string, bool *>> windowNames{
+        {"Compile", &g_CompileWindowOpen},
+        {"Compiler Output", &g_CompilerOutputWindowOpen},
+        {"Compiler Error Output", &g_CompilerErrorOutputWindowOpen}
     };
 
-
     program.ExecuteLoop(
-        [&](SDL_Event event) {
+        [&](SDL_Event) {
             RenderBackgroundSpace(windowNames);
-
-            if (show_demo_window)
-                ImGui::ShowDemoWindow(&show_demo_window); {
-                static float f = 0.0f;
-                static int counter = 0;
-
-                ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-
-                ImGui::Text("This is some useful text."); // Display some text (you can use a format strings too)
-                ImGui::Checkbox("Demo Window", &show_demo_window); // Edit bools storing our window open/close state
-                ImGui::Checkbox("Another Window", &show_another_window);
-
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-
-                if (ImGui::Button("Button"))
-                    // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
-                ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                ImGui::End();
+            if (g_CompileWindowOpen) {
+                RenderCompileWindow();
             }
-
-            // 3. Show another simple window.
-            if (show_another_window) {
-                ImGui::Begin("Another Window", &show_another_window);
-                // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-                ImGui::Text("Hello from another window!");
-                if (ImGui::Button("Close Me"))
-                    show_another_window = false;
-                ImGui::End();
+            if (g_CompilerOutputWindowOpen) {
+                RenderCompilerOutputWindow();
+            }
+            if (g_CompilerErrorOutputWindowOpen) {
+                RenderCompilerErrorOutputWindow();
             }
         }
     );
