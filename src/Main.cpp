@@ -1,6 +1,7 @@
 export module Main;
 
 import "CoreHeader.hpp";
+import CoreLib;
 
 // Main code
 export int main(int, char **) {
