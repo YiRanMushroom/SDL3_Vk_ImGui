@@ -42,3 +42,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        WIN32_EXECUTABLE ON
+)

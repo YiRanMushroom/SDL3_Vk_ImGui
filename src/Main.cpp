@@ -5,6 +5,7 @@ import Application.ImGuiWindows;
 import Atomic;
 import std;
 import Application.WindowsInteractions;
+import <windows.h>;
 
 Atomic<std::string> g_SourceFilePath;
 Atomic<std::string> g_TargetOutputPath;
@@ -116,7 +117,7 @@ void RenderCompilerErrorOutputWindow() {
     ImGui::End();
 }
 
-export int main(int, char **) {
+export int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Program program{
         ProgramSpec{
             .WindowTitle = "EasyASM-PicoBlaze Compiler"
