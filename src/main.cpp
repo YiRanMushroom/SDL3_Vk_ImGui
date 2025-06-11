@@ -1,29 +1,26 @@
 import "CoreHeader.hpp";
 
 // Main code
-int main(int, char**)
-{
+int main(int, char **) {
     // Setup SDL
     // [If using SDL_MAIN_USE_CALLBACKS: all code below until the main loop starts would likely be your SDL_AppInit() function]
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
-    {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         printf("Error: SDL_Init(): %s\n", SDL_GetError());
         return -1;
     }
 
     // Create window with Vulkan graphics context
-    SDL_WindowFlags window_flags = SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL3+Vulkan example", 1280, 720, window_flags);
-    if (window == nullptr)
-    {
+    SDL_WindowFlags window_flags =
+            SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL3+Vulkan example", 1280, 720, window_flags);
+    if (window == nullptr) {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return -1;
     }
 
-    ImVector<const char*> extensions;
-    {
+    ImVector<const char *> extensions; {
         uint32_t sdl_extensions_count = 0;
-        const char* const* sdl_extensions = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
+        const char *const*sdl_extensions = SDL_Vulkan_GetInstanceExtensions(&sdl_extensions_count);
         for (uint32_t n = 0; n < sdl_extensions_count; n++)
             extensions.push_back(sdl_extensions[n]);
     }
@@ -32,8 +29,7 @@ int main(int, char**)
     // Create Window Surface
     VkSurfaceKHR surface;
     VkResult err;
-    if (SDL_Vulkan_CreateSurface(window, g_Instance, g_Allocator, &surface) == 0)
-    {
+    if (SDL_Vulkan_CreateSurface(window, g_Instance, g_Allocator, &surface) == 0) {
         printf("Failed to create Vulkan surface.\n");
         return 1;
     }
@@ -41,7 +37,7 @@ int main(int, char**)
     // Create Framebuffers
     int w, h;
     SDL_GetWindowSize(window, &w, &h);
-    ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
+    ImGui_ImplVulkanH_Window *wd = &g_MainWindowData;
     SetupVulkanWindow(wd, surface, w, h);
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
@@ -49,11 +45,12 @@ int main(int, char**)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
@@ -62,9 +59,8 @@ int main(int, char**)
     //ImGui::StyleColorsLight();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
@@ -112,8 +108,7 @@ int main(int, char**)
 
     // Main loop
     bool done = false;
-    while (!done)
-    {
+    while (!done) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -121,8 +116,7 @@ int main(int, char**)
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         // [If using SDL_MAIN_USE_CALLBACKS: call ImGui_ImplSDL3_ProcessEvent() from your SDL_AppEvent() function]
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
+        while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
             if (event.type == SDL_EVENT_QUIT)
                 done = true;
@@ -131,8 +125,7 @@ int main(int, char**)
         }
 
         // [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppIterate() function]
-        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
-        {
+        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) {
             SDL_Delay(10);
             continue;
         }
@@ -140,10 +133,11 @@ int main(int, char**)
         // Resize swap chain?
         int fb_width, fb_height;
         SDL_GetWindowSize(window, &fb_width, &fb_height);
-        if (fb_width > 0 && fb_height > 0 && (g_SwapChainRebuild || g_MainWindowData.Width != fb_width || g_MainWindowData.Height != fb_height))
-        {
+        if (fb_width > 0 && fb_height > 0 && (g_SwapChainRebuild || g_MainWindowData.Width != fb_width ||
+                                              g_MainWindowData.Height != fb_height)) {
             ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
-            ImGui_ImplVulkanH_CreateOrResizeWindow(g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData, g_QueueFamily, g_Allocator, fb_width, fb_height, g_MinImageCount);
+            ImGui_ImplVulkanH_CreateOrResizeWindow(g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData,
+                                                   g_QueueFamily, g_Allocator, fb_width, fb_height, g_MinImageCount);
             g_MainWindowData.FrameIndex = 0;
             g_SwapChainRebuild = false;
         }
@@ -162,16 +156,17 @@ int main(int, char**)
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Text("This is some useful text."); // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window); // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float *) &clear_color); // Edit 3 floats representing a color
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            if (ImGui::Button("Button"))
+                // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
@@ -181,9 +176,9 @@ int main(int, char**)
         }
 
         // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        if (show_another_window) {
+            ImGui::Begin("Another Window", &show_another_window);
+            // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             ImGui::Text("Hello from another window!");
             if (ImGui::Button("Close Me"))
                 show_another_window = false;
@@ -192,7 +187,7 @@ int main(int, char**)
 
         // Rendering
         ImGui::Render();
-        ImDrawData* main_draw_data = ImGui::GetDrawData();
+        ImDrawData *main_draw_data = ImGui::GetDrawData();
         const bool main_is_minimized = (main_draw_data->DisplaySize.x <= 0.0f || main_draw_data->DisplaySize.y <= 0.0f);
         wd->ClearValue.color.float32[0] = clear_color.x * clear_color.w;
         wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;
@@ -202,8 +197,7 @@ int main(int, char**)
             FrameRender(wd, main_draw_data);
 
         // Update and Render additional Platform Windows
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
         }
