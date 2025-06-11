@@ -17,7 +17,7 @@ file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.cxx")
 file(GLOB_RECURSE HEADER_FILES "src/*.h" "src/*.hpp")
 
 add_executable(${PROJECT_NAME} ${MODULE_FILES} ${SOURCE_FILES} ${HEADER_FILES}
-        src/CoreHeader.hpp)
+        src/Framework/CoreHeader.hpp)
 
 target_sources(
         ${PROJECT_NAME}
