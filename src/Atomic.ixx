@@ -12,30 +12,37 @@ public:
     Atomic(Atomic&&) = delete;
 
     struct Proxy {
-        Atomic& m_Atomic;
-        Proxy(Atomic& atomic) : m_Atomic(atomic) {
-            m_Atomic.m_Mutex.lock();
+        Atomic* m_Atomic;
+        Proxy(Atomic& atomic) : m_Atomic(&atomic) {
         }
 
         T& operator*() {
-            return m_Atomic.m_Value;
+            return m_Atomic->m_Value;
         }
 
         ~Proxy() {
-            m_Atomic.m_Mutex.unlock();
+            m_Atomic.m_Mutex->unlock();
         }
 
         void Set(const T& value) {
-            m_Atomic.m_Value = value;
+            m_Atomic->m_Value = value;
         }
 
         T& Get() {
-            return m_Atomic.m_Value;
+            return m_Atomic->m_Value;
         }
     };
 
-    Proxy Proxy() {
+    Proxy GetProxy() {
+        m_Mutex.lock();
         return Proxy(*this);
+    }
+
+    std::optional<Proxy> TryGetProxy() {
+        if (m_Mutex.try_lock()) {
+            return Proxy(*this);
+        }
+        return std::nullopt;
     }
 
 private:
