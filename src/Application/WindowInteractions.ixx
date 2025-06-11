@@ -104,7 +104,7 @@ namespace Windows {
         CloseHandle(pi.hThread);
 
         if (exitCode != 0) {
-            ShowErrorMessage(("Process exited abnormally. Exit code: " + std::to_string(exitCode) + ". Please report this issue to the compilier vendor with the source it compiled.").c_str());
+            ShowErrorMessage(("Process exited abnormally. Exit code: " + std::to_string(exitCode) + ". Please report this issue to the compiler vendor with the source it compiled.").c_str());
         }
 
         return ProcessOutput{std::move(outStr), std::move(errStr)};
