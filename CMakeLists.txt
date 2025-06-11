@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.29)
 project(SDL3_Vk_ImGui)
 
 set(PROJECT_NAME SDL3_Vk_ImGui)
@@ -35,11 +35,11 @@ add_subdirectory(vendor/SDL3)
 target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
 
 set(IMGUI_DEFINE_MATH_OPERATORS ON)
-set(IMGUI_BACKEND_RENDERER vulkan)
-set(IMGUI_BACKEND_PLATFORM sdl3)
+set(IMGUI_BACKEND_RENDERER vulkan CACHE STRING "ImGui backend renderer" FORCE)
+set(IMGUI_BACKEND_PLATFORM sdl3 CACHE STRING "ImGui backend platform" FORCE)
 add_subdirectory(vendor/imgui)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
-target_link_libraries(imgui PUBLIC SDL3::SDL3)
+
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)

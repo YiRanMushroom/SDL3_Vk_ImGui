@@ -1,7 +1,9 @@
+export module Main;
+
 import "CoreHeader.hpp";
 
 // Main code
-int main(int, char **) {
+export int main(int, char **) {
     // Setup SDL
     // [If using SDL_MAIN_USE_CALLBACKS: all code below until the main loop starts would likely be your SDL_AppInit() function]
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
@@ -55,8 +57,8 @@ int main(int, char **) {
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+    ImGui::StyleColorCustom();
+    // ImGui::StyleColorsLight();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle &style = ImGui::GetStyle();
@@ -100,6 +102,10 @@ int main(int, char **) {
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
+
+    ImFontConfig font_cfg;
+    font_cfg.SizePixels = 18.0f; // Set your desired font size
+    io.Fonts->AddFontDefault(&font_cfg);
 
     // Our state
     bool show_demo_window = true;
