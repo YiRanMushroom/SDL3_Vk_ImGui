@@ -19,6 +19,15 @@ std::filesystem::path g_CurrentPath = std::filesystem::current_path();
 
 void HandleCompile();
 
+void AssertHasFile(const std::filesystem::path& resourcePath) {
+    if (!std::filesystem::exists(resourcePath)) {
+        Windows::ShowErrorMessage(
+            ("File not found: " + resourcePath.string() + "\nThe compiler may not be able to run expectantly.\nPlease reinstall the newest version of EasyASM-PicoBlaze.").c_str(),
+            "File Not Found"
+        );
+    }
+}
+
 void RenderCompileWindow() {
     ImGui::Begin("Compile", &g_CompileWindowOpen); {
         ImGui::Text("Source File: ");
@@ -122,6 +131,10 @@ void RenderCompilerErrorOutputWindow() {
 }
 
 export int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    AssertHasFile("EasyASM.exe");
+    AssertHasFile("PicoBlaze");
+    AssertHasFile("OpenSans.ttf");
+    AssertHasFile("NotoSansSC.ttf");
     Program program{
         ProgramSpec{
             .WindowTitle = "EasyASM-PicoBlaze Compiler"
