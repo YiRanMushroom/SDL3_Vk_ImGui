@@ -31,7 +31,7 @@ void RenderCompileWindow() {
         ImGui::SameLine();
         if (ImGui::Button("...##SourceFile")) {
             std::thread([&] {
-                if (auto result = Windows::OpenFileDialog("PicoBlaze Source Files\0*.psm\0All Files\0*.*\0")) {
+                if (auto result = Windows::OpenFileDialog(L"PicoBlaze Source Files\0*.psm\0All Files\0*.*\0")) {
                     g_SourceFilePath.GetProxy().Set(std::move(result.value()));
                 }
             }).detach();

@@ -23,21 +23,17 @@ namespace Windows {
         return str;
     }
 
-    export std::optional<std::string> OpenFileDialog(std::string_view filter = "All Files\0*.*\0") {
+    export std::optional<std::string> OpenFileDialog(std::wstring_view filter = L"All Files\0*.*\0") {
         wchar_t originalDir[MAX_PATH];
         _wgetcwd(originalDir, MAX_PATH);
 
         wchar_t filename[MAX_PATH] = L"";
 
-        // Convert filter to UTF-16 and double-null terminate
-        std::wstring wfilter = Utf8ToUtf16(filter);
-        if (!wfilter.empty() && wfilter.back() != L'\0') wfilter.push_back(L'\0');
-
         OPENFILENAMEW ofn;
         ZeroMemory(&ofn, sizeof(ofn));
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = NULL;
-        ofn.lpstrFilter = wfilter.c_str();
+        ofn.lpstrFilter = filter.data();
         ofn.lpstrFile = filename;
         ofn.nMaxFile = MAX_PATH;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
