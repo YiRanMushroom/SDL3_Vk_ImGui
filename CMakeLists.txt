@@ -16,7 +16,10 @@ file(GLOB_RECURSE MODULE_FILES "src/*.ixx" "src/*.cppm")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp" "src/*.cxx")
 file(GLOB_RECURSE HEADER_FILES "src/*.h" "src/*.hpp")
 
-add_executable(${PROJECT_NAME} ${MODULE_FILES} ${SOURCE_FILES} ${HEADER_FILES})
+add_executable(${PROJECT_NAME} ${MODULE_FILES} ${SOURCE_FILES} ${HEADER_FILES}
+        src/Framework_glfw/FrameworkCoreHeader.hpp
+        src/Framework_glfw/Program.ixx
+        src/Framework_glfw/Program.cpp)
 
 target_sources(
         ${PROJECT_NAME}
@@ -27,15 +30,18 @@ target_sources(
         ${MODULE_FILES}
         ${SOURCE_FILES})
 
-set(SDL_VULKAN ON)
-set(SDL_STATIC ON)
-set(SDL_SHARED OFF)
-add_subdirectory(vendor/SDL3)
-target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
+#set(SDL_VULKAN ON)
+#set(SDL_STATIC ON)
+#set(SDL_SHARED OFF)
+#add_subdirectory(vendor/SDL3)
+#target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3)
+
+add_subdirectory(vendor/glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
 set(IMGUI_DEFINE_MATH_OPERATORS ON)
 set(IMGUI_BACKEND_RENDERER vulkan CACHE STRING "ImGui backend renderer" FORCE)
-set(IMGUI_BACKEND_PLATFORM sdl3 CACHE STRING "ImGui backend platform" FORCE)
+set(IMGUI_BACKEND_PLATFORM glfw CACHE STRING "ImGui backend platform" FORCE)
 add_subdirectory(vendor/imgui)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
 

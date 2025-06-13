@@ -6,3 +6,7 @@
 	path = vendor/imgui
 	url = https://github.com/YiRanMushroom/imgui
 	branch = docking
+[submodule "vendor/glfw"]
+	path = vendor/glfw
+	url = https://github.com/glfw/glfw
+	branch = master

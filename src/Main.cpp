@@ -1,10 +1,10 @@
 export module Main;
 
-import Framework;
+import Framework.Program;
 import Application.ImGuiWindows;
 import Atomic;
 import std;
-import Application.WindowsInteractions;
+import Framework.WindowsApi;
 import <windows.h>;
 
 Atomic<std::string> g_SourceFilePath;
@@ -19,10 +19,12 @@ std::filesystem::path g_CurrentPath = std::filesystem::current_path();
 
 void HandleCompile();
 
-void AssertHasFile(const std::filesystem::path& resourcePath) {
+void AssertHasFile(const std::filesystem::path &resourcePath) {
     if (!std::filesystem::exists(resourcePath)) {
         Windows::ShowErrorMessage(
-            ("File not found: " + resourcePath.string() + "\nThe compiler may not be able to run expectantly.\nPlease reinstall the newest version of EasyASM-PicoBlaze.").c_str(),
+            ("File not found: " + resourcePath.string() +
+             "\nThe compiler may not be able to run expectantly.\nPlease reinstall the newest version of EasyASM-PicoBlaze.")
+            .c_str(),
             "File Not Found"
         );
     }
@@ -70,7 +72,7 @@ void RenderCompileWindow() {
 }
 
 void HandleCompile() {
-    std::thread ([]() {
+    std::thread([]() {
         std::string sourceFilePath = g_SourceFilePath.GetProxy().Get();
         std::string targetOutputPath = g_TargetOutputPath.GetProxy().Get();
         if (sourceFilePath.empty()) {
@@ -104,6 +106,13 @@ void HandleCompile() {
             g_compilerErrorOutput.GetProxy().Set("");
         }
     }).detach();
+}
+
+bool g_ShowDebugInfo = false;
+void ShowDebugInfo() {
+    ImGui::Begin("Debug Info");
+    ImGui::Text("Frame rate: %.2f FPS", ImGui::GetIO().Framerate);
+    ImGui::End();
 }
 
 void RenderCompilerOutputWindow() {
@@ -141,15 +150,34 @@ export int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         }
     };
 
+    StyleColorHazel();
+
+    auto& io = ImGui::GetIO();
+
+    ImFontConfig font_cfg;
+    font_cfg.SizePixels = 32.0f; // Set your desired font size, all languages
+    io.Fonts->AddFontFromFileTTF("OpenSans.ttf", font_cfg.SizePixels, &font_cfg, io.Fonts->GetGlyphRangesDefault());
+    font_cfg.MergeMode = true;
+    io.Fonts->AddFontFromFileTTF("NotoSansSC.ttf", font_cfg.SizePixels, &font_cfg, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->Build();
+
     std::vector<std::pair<std::string, bool *>> windowNames{
         {"Compile", &g_CompileWindowOpen},
         {"Compiler Output", &g_CompilerOutputWindowOpen},
-        {"Compiler Error Output", &g_CompilerErrorOutputWindowOpen}
+        {"Compiler Error Output", &g_CompilerErrorOutputWindowOpen},
+        {"Debug Info", &g_ShowDebugInfo}
     };
 
     program.ExecuteLoop(
-        [&](SDL_Event) {
-            RenderBackgroundSpace(windowNames);
+        [&]() {
+            RenderBackgroundSpace([&] {
+                if (ImGui::BeginMenu("Windows")) {
+                    for (const auto &[name, show]: windowNames) {
+                        ImGui::MenuItem(name.c_str(), nullptr, show);
+                    }
+                    ImGui::EndMenu();
+                }
+            });
             if (g_CompileWindowOpen) {
                 RenderCompileWindow();
             }
@@ -158,6 +186,9 @@ export int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             }
             if (g_CompilerErrorOutputWindowOpen) {
                 RenderCompilerErrorOutputWindow();
+            }
+            if (g_ShowDebugInfo) {
+                ShowDebugInfo();
             }
         }
     );

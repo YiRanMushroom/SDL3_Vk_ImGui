@@ -1,8 +1,8 @@
-export module Application.WindowsInteractions;
+export module Framework.WindowsApi;
 
-import Framework;
+import Framework.Program;
 
-import <Windows.h>;
+export import <Windows.h>;
 import <shlobj.h>;
 import <direct.h>;
 import std;
@@ -115,7 +115,7 @@ namespace Windows {
         if (!success) {
             CloseHandle(outRead);
             CloseHandle(errRead);
-            ShowErrorMessage("Failed to create process, please make sure the compiler and sources are correct.");
+            ShowErrorMessage("Failed to create process. Please check if all required files are present and the command is correct.");
             return std::nullopt;
         }
 

@@ -1,4 +1,4 @@
 export module CoreLib;
 
 export import std.compat;
-export import "Framework/CoreHeader.hpp";
+export import "Framework_glfw/FrameworkCoreHeader.hpp";
