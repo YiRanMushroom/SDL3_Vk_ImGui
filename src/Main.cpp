@@ -168,6 +168,8 @@ export int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         {"Debug Info", &g_ShowDebugInfo}
     };
 
+    io.ConfigFlags &= (~ImGuiConfigFlags_ViewportsEnable); // Enable Multi-Viewport / Platform Windows
+
     program.ExecuteLoop(
         [&]() {
             RenderBackgroundSpace([&] {
